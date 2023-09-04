@@ -60,6 +60,9 @@ scene.add(camera)
 const controls = new OrbitControls(camera, canvas)
 controls.enableDamping = true
 
+// Don't allow the camera to go below the ground
+controls.maxPolarAngle = Math.PI / 2  - Math.PI / 32
+
 /**
  * Textures
  */
