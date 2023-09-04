@@ -18,6 +18,9 @@ const gui = new dat.GUI({
     width: 400
 })
 
+const isLocalhost = window.location.href.includes('localhost')
+
+gui.show(isLocalhost)
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
 
