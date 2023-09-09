@@ -263,6 +263,91 @@ gui.addColor(debugObject, 'clearColor').onChange(() => {
     renderer.setClearColor(debugObject.clearColor)
 })
 
+/**
+ * Realtime environment map
+ */
+const texture = textureLoader.load('/dark_night_sky.jpg')
+
+texture.mapping = THREE.EquirectangularReflectionMapping;
+
+scene.background = texture;
+scene.environment = texture;
+
+
+let guiExposure = null;
+const params = {
+  exposure: 1.23,
+  toneMapping: 'Cineon',
+  blurriness: 0.08,
+  intensity: 0.01,
+};
+
+const toneMappingOptions = {
+  None: THREE.NoToneMapping,
+  Linear: THREE.LinearToneMapping,
+  Reinhard: THREE.ReinhardToneMapping,
+  Cineon: THREE.CineonToneMapping,
+  ACESFilmic: THREE.ACESFilmicToneMapping,
+  Custom: THREE.CustomToneMapping
+};
+
+renderer.toneMappingExposure = 1.25;
+renderer.toneMapping = toneMappingOptions[ params.toneMapping ];
+
+scene.backgroundBlurriness = 0.075;
+scene.backgroundIntensity = 0.03;
+
+
+const toneMappingFolder = gui.addFolder('tone mapping');
+
+toneMappingFolder.add(params, 'toneMapping', Object.keys(toneMappingOptions))
+  .onChange( function () {
+
+    updateGUI( toneMappingFolder );
+
+    renderer.toneMapping = toneMappingOptions[ params.toneMapping ];
+    renderer.render(scene, camera);
+
+  } );
+
+const backgroundFolder = gui.addFolder('background');
+
+backgroundFolder
+  .add(params, 'blurriness', 0, 1)
+  .onChange(function (value) {
+
+    scene.backgroundBlurriness = value;
+    renderer.render(scene, camera);
+  });
+
+backgroundFolder
+  .add(params, 'intensity', 0, 1)
+  .onChange( function ( value ) {
+    scene.backgroundIntensity = value;
+    renderer.render(scene, camera);
+  });
+
+updateGUI( toneMappingFolder );
+
+gui.open();
+
+
+function updateGUI( folder ) {
+  if ( guiExposure !== null ) {
+    guiExposure.destroy();
+    guiExposure = null;
+  }
+
+  if ( params.toneMapping !== 'None' ) {
+    guiExposure = folder
+      .add( params, 'exposure', 0, 2 )
+      .onChange( function () {
+
+      renderer.toneMappingExposure = params.exposure;
+      renderer.render(scene, camera);
+    });
+  }
+}
 
 /**
  * Animate
